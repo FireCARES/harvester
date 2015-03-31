@@ -3,7 +3,6 @@ import click
 from harvester.esri import ESRIHarvester
 from harvester.workers import split_job
 import logging
-import os
 import logging.config
 
 LOG_SETTINGS = {
