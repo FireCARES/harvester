@@ -1,4 +1,4 @@
-# FireCARES Harvester [![Build Status](https://travis-ci.org/profile/FireCARES/harvester.svg)](https://travis-ci.org/profile/FireCARES/harvester)
+# FireCARES Harvester [![Build Status](https://api.travis-ci.org/FireCARES/harvester.svg)](https://travis-ci.org/FireCARES/harvester)
 
 The FireCARES Harvester is a data collection application used to harvest data from the WWW and ingest into a local datastore for further processing before being pushed into a PostGIS database.
 
