@@ -13,6 +13,8 @@ python:
 install:
   - pip install -r requirements.pip
 
+before_script: export PYTHONPATH=$PYTHONPATH:$(pwd)
+
 script:
   - paver run_tests
 
