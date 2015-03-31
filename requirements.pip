@@ -1,5 +1,6 @@
 Jinja2==2.7.3
 MarkupSafe==0.23
+Paver==1.2.4
 Pygments==2.0.2
 amqp==1.4.6
 anyjson==0.3.3
@@ -11,6 +12,7 @@ certifi==14.05.14
 click==3.3
 colorama==0.3.3
 flake8==2.4.0
+gnureadline==6.3.3
 httplib2==0.9
 ipdb==0.8
 ipython==3.0.0

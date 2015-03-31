@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 import requests_mock
-from harvester.esri import VerbatimHarvester, ESRIHarvester
+from harvester.esri import ESRIHarvester
+from harvester.http import VerbatimHarvester
 from tests import TEST_DIR
 import shutil
 import os

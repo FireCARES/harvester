@@ -14,7 +14,7 @@ install:
   - pip install -r requirements.pip
 
 script:
-  - flake8
+  - paver run_tests
 
 notifications:
   slack: prominentedge:9VnNQcaSr6mHKSC2XHwEjkam
