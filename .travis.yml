@@ -1,0 +1,20 @@
+language: python
+
+branches:
+  only:
+    - master
+
+virtualenv:
+  system_site_packages: true
+
+python:
+  - "2.7"
+
+install:
+  - pip install -r requirements.pip
+
+script:
+  - flake8
+
+notifications:
+  slack: prominentedge:9VnNQcaSr6mHKSC2XHwEjkam
