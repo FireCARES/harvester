@@ -14,7 +14,7 @@ def harvest_range(harvester, start, end):
     """Pull range of features with automatic from start/end objectIds."""
     log.info('Harvesting object ids between {0} and {1}'.format(start, end))
     try:
-        #TODO: Add in sliding chunk size window when the results comes back w/
+        # TODO: Add in sliding chunk size window when the results comes back w/
         # "exceeded transfer limit" or if the set of objectIds != what was expected
         return harvester.get_features(start, end)
     except Exception as exc:
