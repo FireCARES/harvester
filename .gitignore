@@ -52,3 +52,12 @@ docs/_build/
 
 # PyBuilder
 target/
+
+log
+.ipynb_checkpoints/
+data/
+celery.out
+out.log
+cache_test
+*~
+*.ipynb
