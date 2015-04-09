@@ -8,17 +8,20 @@ import urlparse
 import re
 import json
 import os
+import glob
 from harvester.http import CachableHTTPHarvester
+import logging
 
 
 class ESRIHarvester(CachableHTTPHarvester):
     QUERY_COUNT = 'query?where=1%3D1&returnCountOnly=true&f=pjson'
     QUERY_OBJECTIDS = 'query?where=1%3D1&returnGeometry=false&returnIdsOnly=true&f=pjson'
-    QUERY_FEATURES = 'query?where=objectid>={0}+AND+objectid<={1}&outFields=*&returnGeometry=true&f=pjson'
+    QUERY_FEATURES = 'query?where=objectid>={0}+AND+objectid<={1}&outSR={2}&outFields=*&returnGeometry=true&f=pjson'
 
-    def __init__(self, url, *args, **kwargs):
+    def __init__(self, url, sr=4326, *args, **kwargs):
         super(ESRIHarvester, self).__init__(*args, **kwargs)
         self.url = self.__reformat_url(url)
+        self.sr = sr
 
     def __reformat_url(self, url):
         if not url.endswith('/'):
@@ -49,6 +52,19 @@ class ESRIHarvester(CachableHTTPHarvester):
         return json.loads(resp)['objectIds']
 
     def get_features(self, start, end):
-        dest = self.url + self.QUERY_FEATURES.format(start, end)
+        dest = self.url + self.QUERY_FEATURES.format(start, end, self.sr)
         resp = self.get(dest)
         return json.loads(resp)
+
+    def clear_feature_cache(self, start=0, end=0, everything=False):
+        if everything:
+            path = os.path.dirname(self.url_to_file(self.url + self.QUERY_FEATURES.format(0, 0, 0)))
+            files = glob.glob(path + "/[0-9]*.json")
+            for f in files:
+                logging.info('Removing {0} from feature cache'.format(f))
+                os.unlink(f)
+        else:
+            url = self.url + self.QUERY_FEATURES.format(start, end, self.sr)
+            f = self.url_to_file(url)
+            if os.path.exists(f):
+                os.unlink(f)

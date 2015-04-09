@@ -19,7 +19,6 @@ class TestFilebasedCache(unittest.TestCase):
         self.mocks = os.path.join(os.path.dirname(__file__), 'mock')
         if os.path.exists(TEST_DIR):
             shutil.rmtree(TEST_DIR)
-        pass
 
     def tearDown(self):
         pass
