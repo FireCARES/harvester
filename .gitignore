@@ -62,3 +62,5 @@ cache_test
 *~
 *.ipynb
 .idea/
+
+/*.json

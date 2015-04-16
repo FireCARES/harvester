@@ -1,7 +1,7 @@
 import os
 
 
-class RESTJSON(object):
+class ESRIJSON(object):
     @staticmethod
     def to_geojson(filename):
         ofile = os.path.splitext(filename)[0] + '.geojson'
@@ -9,3 +9,4 @@ class RESTJSON(object):
             os.remove(ofile)
         # FIXME: i'm a terrible way to transform from ESRI json to geojson
         os.system('ogr2ogr -f "GeoJSON" {0} {1}'.format(ofile, filename))
+        return ofile

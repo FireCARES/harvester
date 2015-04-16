@@ -84,7 +84,11 @@ setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
+<<<<<<< HEAD
+            'harvester = harvester.app:harvest',
+=======
             'harvester = harvester.cli:harvest',
+>>>>>>> Fleshed out the load to mongo/configurable work
         ],
     },
 )

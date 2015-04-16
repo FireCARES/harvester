@@ -1,0 +1,6 @@
+mccabe
+nose
+mock
+flake8
+ipython[notebook]
+ipdb

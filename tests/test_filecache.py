@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import requests_mock
-from harvester.esri import ESRIHarvester
+from harvester.providers.esri import RESTHarvester
 from harvester.http import VerbatimHarvester
 from tests import TEST_DIR
 import shutil
@@ -42,7 +42,7 @@ class TestFilebasedCache(unittest.TestCase):
                        'http://www.esriserver.com/arcgis/rest/services/namespace/group/MapServer/0/'
                        'query?where=1%3D1&returnGeometry=false&returnIdsOnly=true&f=pjson',
                        text=open(os.path.join(self.mocks, 'ids.json')).read())
-        harvester = ESRIHarvester('http://www.esriserver.com/arcgis/rest/services/namespace/group/MapServer/0', data_dir=TEST_DIR)
+        harvester = RESTHarvester('http://www.esriserver.com/arcgis/rest/services/namespace/group/MapServer/0', data_dir=TEST_DIR)
         harvester.get_feature_count()
         harvester.get_objectids()
         self.assertTrue(exists(TEST_DIR + '/www_esriserver_com_arcgis_rest_services_namespace_group_MapServer_0_query/count.json'))
