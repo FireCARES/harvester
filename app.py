@@ -49,7 +49,11 @@ log = logging.getLogger(__name__)
 @click.option('--cache/--no-cache', default=True, help='Always pull from source (--no-cache) or local filesystem if response is cached')
 @click.pass_context
 def harvest(ctx, cache):
-    """Harvesting-related functions."""
+    """Harvester CLI."""
+
+    if ctx.obj is None:
+        ctx.obj = {}
+
     ctx.obj['CACHE'] = cache
 
 
@@ -88,7 +92,6 @@ def esri_pull_features(ctx, url, start, end, job_size):
 def esri_clear_feature_cache(ctx, url):
     harvester = ESRIHarvester(url)
     harvester.clear_feature_cache(everything=True)
-
 
 if __name__ == '__main__':
     harvest(obj={})

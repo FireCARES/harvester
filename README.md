@@ -11,7 +11,7 @@ The FireCARES Harvester is a data collection application used to harvest data fr
 virtualenv iaff_harvester
 cd iaff_harvester
 source bin/activate
-pip install -r requirements.pip
+pip install .
 ```
 
 ## Running
@@ -20,7 +20,7 @@ pip install -r requirements.pip
 
 ```bash
 celery worker -l info
-python app.py start_esri_harvest [URL TO ENDPOINT]  # starts the harvesting of an ESRI endpoint
+harvester start_esri_harvest [URL TO ENDPOINT]  # starts the harvesting of an ESRI endpoint
 ```
 
 ### Cleaning the feature cache
