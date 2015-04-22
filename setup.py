@@ -102,7 +102,7 @@ setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'harvester = app:harvest',
+            'harvester = harvester.app:harvest',
         ],
     },
 )
