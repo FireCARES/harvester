@@ -34,5 +34,5 @@ class GEOJSONLoader(object):
                 _fix_keys(f['properties'])
                 # TODO: Make this query unique across BOTH OBJECTID AND meta.layer!
                 db[work.load_destination].replace_one({'feature.properties.OBJECTID': f['properties']['OBJECTID']},
-                                    ins, upsert=True)
+                                                      ins, upsert=True)
             db.test.create_index([('feature.geometry', pymongo.GEOSPHERE)])
