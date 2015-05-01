@@ -20,7 +20,9 @@ class GEOJSONLoader(object):
         with pymongo.MongoClient(settings.MONGO_CONNECTION) as client:
             db = client[settings.MONGO_DATABASE]
             features = json.load(open(filename))['features']
+            dest = db[work.load_destination]
 
+            bulk = dest.initialize_unordered_bulk_op()
             for f in features:
                 ins = {'meta':
                        {'layer': work.layer,
@@ -33,6 +35,12 @@ class GEOJSONLoader(object):
                        'feature': f}
                 _fix_keys(f['properties'])
                 # TODO: Make this query unique across BOTH OBJECTID AND meta.layer!
-                db[work.load_destination].replace_one({'feature.properties.OBJECTID': f['properties']['OBJECTID']},
-                                                      ins, upsert=True)
-            db.test.create_index([('feature.geometry', pymongo.GEOSPHERE)])
+                bulk.find({'feature.properties.OBJECTID': f['properties']['OBJECTID'], 'meta.layer': work.layer}).upsert().replace_one(ins)
+
+            bulk.execute()
+            dest.create_index([('feature.geometry', pymongo.GEOSPHERE)])
+            dest.create_index([('meta.country', pymongo.ASCENDING),
+                               ('meta.state_province', pymongo.ASCENDING),
+                               ('meta.city', pymongo.ASCENDING)])
+            dest.create_index([('feature.properties.OBJECTID', pymongo.ASCENDING),
+                               ('meta.layer', pymongo.ASCENDING)])

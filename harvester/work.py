@@ -3,8 +3,9 @@ from __future__ import absolute_import
 from collections import OrderedDict
 from datetime import datetime
 from harvester import __version__
-from harvester.util import get_class
+from harvester.util import get_class, pretty_time_delta
 from celery.contrib.methods import task
+import requests
 import json
 import os
 
@@ -100,12 +101,17 @@ class Runner(object):
     def generated_version(self):
         return self._content.get('generated_version')
 
-    @task()
+    @task
     def do(self):
-        self.do_extraction().apply()
+        self.started_at = datetime.now()
+        self.count = sum(self.do_extraction().apply().get())
+
         if not self.extract_only:
             self.do_transform()
             self.load_to(self.load_provider)
+
+        if self.finished_callback_url:
+                requests.post(self.finished_callback_url, json={'text': self.get_callback_text()})
 
     def do_extraction(self):
         return self.provider.extract(self)
@@ -115,6 +121,10 @@ class Runner(object):
 
     def load_to(self, dest):
         self.provider.load_to(dest, self)
+
+    def get_callback_text(self):
+        return ('Finished harvest on {0}, took {1}, collected {2} features'
+                .format(self.layer, pretty_time_delta((datetime.now() - self.started_at).seconds), self.count))
 
 
 class Template(object):

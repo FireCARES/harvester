@@ -69,7 +69,7 @@ def generate_work_template(ctx, filename):
 def do_work(ctx, filename):
     """Performs the work described in the provided template"""
     worker = work.Runner.from_file(filename)
-    jobid = worker.do().apply_async()
+    jobid = worker.do.delay()
     log.info('Enqueued work job {0}'.format(jobid))
 
 

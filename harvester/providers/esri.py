@@ -100,7 +100,7 @@ class RESTHarvester(CachableHTTPHarvester):
             features = self.get_features(start, end)
 
             if not ESRIREST.is_retrieval_limit_exceeded(features) and ESRIREST.validate_objectids_exist(features, c):
-                return features
+                return len(features.get('features'))
             else:
                 self.clear_feature_cache(start, end)
                 c1 = c[:len(c) / 2]
