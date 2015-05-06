@@ -63,12 +63,12 @@ def generate_work_template(ctx, filename):
     log.info('Generated work template at {0}'.format(filename))
 
 
-@harvest.command('do-work')
-@click.argument('filename', type=click.Path(exists=True))
+@harvest.command('harvest')
+@click.argument('template', type=click.Path(exists=True))
 @click.pass_context
-def do_work(ctx, filename):
+def do_work(ctx, template):
     """Performs the work described in the provided template"""
-    worker = work.Runner.from_file(filename)
+    worker = work.Runner.from_file(template)
     jobid = worker.do.delay()
     log.info('Enqueued work job {0}'.format(jobid))
 
