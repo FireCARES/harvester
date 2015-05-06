@@ -79,7 +79,6 @@ setup(
         'requests==2.6.0',
         'requests-mock==0.6.0',
         'six==1.9.0',
-        'wsgiref==0.1.2',
     ],
     zip_safe=False,
     entry_points={

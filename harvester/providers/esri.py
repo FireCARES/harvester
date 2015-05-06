@@ -10,7 +10,7 @@ import json
 import os
 import re
 import sys
-import urlparse
+import six.moves.urllib.parse as urlparse
 from harvester.http import CachableHTTPHarvester
 from harvester.transform.esri import ESRIJSON
 from harvester.util import chunk

@@ -4,3 +4,4 @@ mock
 flake8
 ipython[notebook]
 ipdb
+tox

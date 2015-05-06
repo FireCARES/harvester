@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import requests
-import urlparse
+import six.moves.urllib.parse as urlparse
 import os
 import click
-import StringIO
+from six import StringIO
 import logging
 
 log = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class CachableHTTPHarvester(object):
         if not os.path.isdir(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
 
-        buf = StringIO.StringIO()
+        buf = StringIO()
         total_length = int(resp.headers.get('content-length', 0))
 
         if total_length:

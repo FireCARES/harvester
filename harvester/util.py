@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+from six.moves import range
 
 
 def chunk(lst, num):
     """Split list into groups given `num` size."""
-    for i in xrange(0, len(lst), num):
+    for i in range(0, len(lst), num):
         cur = lst[i:i + num]
         yield cur
 
