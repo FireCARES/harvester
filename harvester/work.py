@@ -3,11 +3,14 @@ from __future__ import absolute_import
 from collections import OrderedDict
 from datetime import datetime
 from harvester import __version__
-from harvester.util import get_class, pretty_time_delta
+from harvester.util import get_class, pretty_time_delta, update_dict, query_dict
 from celery.contrib.methods import task
+import logging
+import traceback
 import requests
 import json
 import os
+import re
 
 
 class BadWorkFileFormat(Exception):
@@ -28,6 +31,23 @@ class Runner(object):
         self._provider = None
         self._load_provider = None
         self.validate()
+
+    def merge(self, settings):
+        def munge_from_json_key(s):
+            return re.sub('-', '_', s)
+
+        for s in settings:
+            qry = munge_from_json_key(s)
+            # In that special case that we want to update ALL of the children
+            val = query_dict(self._content, qry)
+            if type(val) is dict:
+                for key in val:
+                    update_dict(self._content, settings[s], qry + '.' + key)
+                    logging.info('Updated work settings under {0} with {1}'.format(qry, settings[s]))
+            else:
+                ret = update_dict(self._content, settings[s], qry)
+                if ret:
+                    logging.info('Updated work setting {0} with {1}'.format(qry, settings[s]))
 
     def validate(self):
         for p in ['layer', 'provider', 'country', 'state_province', 'city', 'load_provider',
@@ -90,8 +110,12 @@ class Runner(object):
         return self._content.get('extract_only', False)
 
     @property
-    def finished_callback_url(self):
-        return self._content.get('finished_callback_url') or None
+    def done_webhook(self):
+        return self._content.get('webhook', {}).get('done')
+
+    @property
+    def fail_webhook(self):
+        return self._content.get('webhook', {}).get('fail')
 
     @property
     def generated_at(self):
@@ -103,15 +127,18 @@ class Runner(object):
 
     @task
     def do(self):
-        self.started_at = datetime.now()
-        self.count = sum(self.do_extraction().apply().get())
-
-        if not self.extract_only:
-            self.do_transform()
-            self.load_to(self.load_provider)
-
-        if self.finished_callback_url:
-                requests.post(self.finished_callback_url, json={'text': self.get_callback_text()})
+        try:
+            self.started_at = datetime.now()
+            self.count = sum(self.do_extraction().apply().get())
+            if not self.extract_only:
+                self.do_transform()
+                self.load_to(self.load_provider)
+        except Exception:
+            if self.fail_webhook:
+                requests.post(self.fail_webhook, json={'text': self.get_fail_webhook_text(traceback.format_exc())})
+        else:
+            if self.done_webhook:
+                requests.post(self.done_webhook, json={'text': self.get_done_webhook_text()})
 
     def do_extraction(self):
         return self.provider.extract(self)
@@ -122,9 +149,13 @@ class Runner(object):
     def load_to(self, dest):
         self.provider.load_to(dest, self)
 
-    def get_callback_text(self):
+    def get_done_webhook_text(self):
         return ('Finished harvest on {0}, took {1}, collected {2} features'
                 .format(self.layer, pretty_time_delta((datetime.now() - self.started_at).seconds), self.count))
+
+    def get_fail_webhook_text(self, trace):
+        return ('HARVEST FAILED on {0} after {1}:\n{2}'
+                .format(self.layer, pretty_time_delta((datetime.now() - self.started_at).seconds), trace))
 
 
 class Template(object):

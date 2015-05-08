@@ -2,6 +2,7 @@
 import click
 import logging
 import logging.config
+import re
 from harvester import work
 from harvester.providers.esri import RESTHarvester
 from harvester.load.mongo import GEOJSONLoader
@@ -49,12 +50,12 @@ log = logging.getLogger(__name__)
 @click.group()
 @click.pass_context
 @click.version_option()
-def harvest(ctx):
+def cli(ctx):
     """Harvester CLI."""
     pass
 
 
-@harvest.command('generate-work-template')
+@cli.command('generate-work-template')
 @click.argument('filename', type=click.Path())
 @click.pass_context
 def generate_work_template(ctx, filename):
@@ -63,17 +64,29 @@ def generate_work_template(ctx, filename):
     log.info('Generated work template at {0}'.format(filename))
 
 
-@harvest.command('harvest')
+@cli.command('harvest')
 @click.argument('template', type=click.Path(exists=True))
+@click.option('--opt', '-o', multiple=True)
 @click.pass_context
-def do_work(ctx, template):
-    """Performs the work described in the provided template"""
+def harvest(ctx, template, opt):
+    """Performs the work described in the provided template
+
+    Options passed via --opt will override values in the template and should be
+    passed using `--opt key=value` format
+
+    Dictionary items with multiple descendents will ALL be updated to the value
+    (eg. `-o webhook=http://www.example.com` will update both webhook.fail/webhook.done)
+    """
     worker = work.Runner.from_file(template)
+    if opt:
+        for o in opt:
+            # Pull out quoted/unquoted values from `opt` options
+            worker.merge({k: v.strip('"') for k, v in re.findall(r'(\S+)=(".*?"|\S+)', o)})
     jobid = worker.do.delay()
     log.info('Enqueued work job {0}'.format(jobid))
 
 
-@harvest.command('esri-pull-feature-count', short_help='Gets the count of features for the given ESRI REST endpoint')
+@cli.command('esri-pull-feature-count', short_help='Gets the count of features for the given ESRI REST endpoint')
 @click.argument('filename', type=click.Path(exists=True))
 @click.pass_context
 def esri_pull_feature_count(ctx, filename):
@@ -81,7 +94,7 @@ def esri_pull_feature_count(ctx, filename):
     log.info('Total features: {0}'.format(RESTHarvester(worker.layer).get_feature_count()))
 
 
-@harvest.command('esri-pull-ids', short_help='Pull the list of OBJECTIDs from the ESRI REST endpoint')
+@cli.command('esri-pull-ids', short_help='Pull the list of OBJECTIDs from the ESRI REST endpoint')
 @click.argument('filename', type=click.Path(exists=True))
 @click.pass_context
 def esri_pull_ids(ctx, filename):
@@ -90,7 +103,7 @@ def esri_pull_ids(ctx, filename):
     log.info('{0} IDs'.format(len(ids)))
 
 
-@harvest.command('esri-pull-features', short_help='Pull features from an ESRI endpoint, stored in ESRI JSON format')
+@cli.command('esri-pull-features', short_help='Pull features from an ESRI endpoint, stored in ESRI JSON format')
 @click.argument('filename', type=click.Path(exists=True))
 @click.pass_context
 def esri_pull_features(ctx, filename):
@@ -105,7 +118,7 @@ def esri_pull_features(ctx, filename):
     log.info('Starting harvest of {0} objectids [{1} - {2}] JOB => {3}'.format(worker.layer, worker.min_id, worker.max_id, result))
 
 
-@harvest.command('esri-transform-esri-json', short_help='Manually-transform the ESRI JSON features into traditional geojson')
+@cli.command('esri-transform-esri-json', short_help='Manually-transform the ESRI JSON features into traditional geojson')
 @click.argument('filename', type=click.Path(exists=True))
 @click.pass_context
 def esri_transform_esri_json(ctx, filename):
@@ -115,7 +128,7 @@ def esri_transform_esri_json(ctx, filename):
     harvester.transform(worker)
 
 
-@harvest.command('esri-load-geojson', short_help='Loads the existing geojson for this endpoint')
+@cli.command('esri-load-geojson', short_help='Loads the existing geojson for this endpoint')
 @click.argument('filename', type=click.Path(exists=True))
 @click.pass_context
 def esri_load_geojson(ctx, filename):
@@ -125,7 +138,7 @@ def esri_load_geojson(ctx, filename):
     harvester.load_to(GEOJSONLoader, worker)
 
 
-@harvest.command('esri-clear-feature-cache', short_help='Clears a given endpoint\'s feature cache')
+@cli.command('esri-clear-feature-cache', short_help='Clears a given endpoint\'s feature cache')
 @click.argument('filename', type=click.Path(exists=True))
 @click.pass_context
 def esri_clear_feature_cache(ctx, filename):
@@ -136,4 +149,4 @@ def esri_clear_feature_cache(ctx, filename):
 
 
 if __name__ == '__main__':
-    harvest()
+    cli()

@@ -71,3 +71,24 @@ def pretty_time_delta(seconds):
         return '%dm%ds' % (minutes, seconds)
     else:
         return '%ds' % (seconds,)
+
+
+def query_dict(d, key):
+    keys = key.split('.')
+    ptr = d.get(keys[0])
+    for i in range(1, len(keys)):
+        if not keys[i] in ptr:
+            return None
+        else:
+            ptr = ptr.get(keys[i])
+    return ptr
+
+
+def update_dict(d, value, query):
+    keys = query.split('.')
+    ptr = query_dict(d, '.'.join(keys[:-1]))
+    if ptr:
+        ptr[keys[-1]] = value
+        return d
+    else:
+        return None
