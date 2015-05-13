@@ -4,6 +4,7 @@
     "country": "US",
     "state_province": "",
     "city": "",
+    "stateco_fips": "00000",
     "starting_chunk_size": 1000,
     "min_id": null,
     "max_id": null,

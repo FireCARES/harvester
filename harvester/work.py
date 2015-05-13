@@ -125,6 +125,10 @@ class Runner(object):
     def generated_version(self):
         return self._content.get('generated_version')
 
+    @property
+    def stateco_fips(self):
+        return self._content.get('stateco_fips')
+
     @task
     def do(self):
         try:

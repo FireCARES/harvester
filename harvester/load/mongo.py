@@ -29,6 +29,7 @@ class GEOJSONLoader(object):
                         'country': work.country,
                         'state_province': work.state_province,
                         'city': work.city,
+                        'stateco_fips': work.stateco_fips,
                         'provider': work._content.get('provider'),
                         'loaded': datetime.now()
                         },

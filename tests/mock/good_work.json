@@ -4,6 +4,7 @@
     "country": "US", 
     "state_province": "MO", 
     "city": "St. Louis", 
+    "stateco_fips": "29189",
     "starting_chunk_size": 1000, 
     "download_only": false,
     "load_destination": "some_collection",

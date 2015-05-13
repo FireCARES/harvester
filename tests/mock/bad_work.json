@@ -4,6 +4,7 @@
     "state_province": "", 
     "city": "", 
     "starting_chunk_size": 1000, 
+    "stateco_fips": "Blue",
     "download_only": false, 
     "finished_callback_url": null, 
     "generated_at": "2015-04-21 20:41:06", 
