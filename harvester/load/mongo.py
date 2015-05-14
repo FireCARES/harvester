@@ -18,7 +18,8 @@ class GEOJSONLoader(object):
             return d
 
         def format_upstream(work, feature):
-            return '{0}/query?objectIds={1}&outFields=*&returnGeometry=true&outSR=4326&f=pjson'.format(work.layer, feature['properties'].get('OBJECTID'))
+            return ('{0}/query?objectIds={1}&outFields=*&returnGeometry=true&outSR=4326&f=pjson'
+                    .format(work.layer, feature['properties'].get('OBJECTID')))
 
         with pymongo.MongoClient(settings.MONGO_CONNECTION) as client:
             db = client[settings.MONGO_DATABASE]
