@@ -1,0 +1,8 @@
+CELERYD_USER=celery
+CELERYD_GROUP=celery
+CELERYD_CHDIR="..."  # path to harvester source root
+CELERY_CONFIG_MODULE="celeryconfig"
+ENV_PYTHON=".../bin/python"  # path to python interpreter
+CELERYD_MULTI=".../bin/celeryd-multi"  # path to celeryd-multi binary
+CELERYCTL=".../bin/celeryctl"  # path to celeryctl binary
+CELERY_APP="harvester.worker:app"

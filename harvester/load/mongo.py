@@ -17,6 +17,9 @@ class GEOJSONLoader(object):
                     del d[k]
             return d
 
+        def format_upstream(work, feature):
+            return '{0}/query?objectIds={1}&outFields=*&returnGeometry=true&outSR=4326&f=pjson'.format(work.layer, feature['properties'].get('OBJECTID'))
+
         with pymongo.MongoClient(settings.MONGO_CONNECTION) as client:
             db = client[settings.MONGO_DATABASE]
             features = json.load(open(filename))['features']
@@ -31,6 +34,7 @@ class GEOJSONLoader(object):
                         'city': work.city,
                         'stateco_fips': work.stateco_fips,
                         'provider': work._content.get('provider'),
+                        'upstream': format_upstream(work, f),
                         'loaded': datetime.now()
                         },
                        'feature': f}

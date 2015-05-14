@@ -1,11 +1,12 @@
 # FireCARES Harvester [![Build Status](https://api.travis-ci.org/FireCARES/harvester.svg)](https://travis-ci.org/FireCARES/harvester)
 
-The FireCARES Harvester is a data collection application used to harvest data from the WWW and ingest into a local datastore for further processing before being pushed into a PostGIS database.
+The FireCARES Harvester is a data collection application used to harvest data from the datasources over HTTP
+and ingested with simple transformations into a local document store.
 
 ## Assumptions
 
-* Python 2.6+
-* Document database store => MongoDB
+* Python 2.7/3.4
+* MongoDB
 
 ```bash
 virtualenv iaff_harvester
@@ -20,7 +21,8 @@ pip install .
 
 ```bash
 celery worker -l info
-harvester start_esri_harvest [URL TO ENDPOINT]  # starts the harvesting of an ESRI endpoint
+harvester generate-work-template [FILENAME]  # create a work definition from the default template
+harvester harvester [WORK DEFINITION]  # acts on work defined in the work definition
 ```
 
 ### Cleaning the feature cache
