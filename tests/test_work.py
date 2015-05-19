@@ -6,6 +6,7 @@ from tests.util import get_mock_path
 class TestWork(unittest.TestCase):
     def setUp(self):
         self.good = work.Runner.from_file(get_mock_path('good_work.json'))
+        self.good2 = work.Runner.from_file(get_mock_path('good_work2.json'))
 
     def test_json_load(self):
         with self.assertRaises(work.BadWorkFileFormat) as context:  # noqa
@@ -25,3 +26,8 @@ class TestWork(unittest.TestCase):
         self.assertEquals(self.good.fail_webhook, newfail)
         self.good.merge({'webhook.done': newdone})
         self.assertEquals(self.good.done_webhook, newdone)
+
+    def test_backwards_compatability(self):
+        newdone = 'http://www.example.com/newdone'
+        self.good2.merge({'webhook': newdone})
+        self.assertEquals(self.good2.done_webhook, newdone)

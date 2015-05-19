@@ -27,7 +27,25 @@ class Runner(object):
         return cls(json.load(open(filename)))
 
     def __init__(self, content):
-        self._content = content
+        self._content = {
+            "layer": None,
+            "provider": None,
+            "country": None,
+            "state_province": None,
+            "city": None,
+            "stateco_fips": None,
+            "starting_chunk_size": None,
+            "min_id": None,
+            "max_id": None,
+            "load_destination": None,
+            "load_provider": None,
+            "extract_only": None,
+            "webhook": {
+                "done": None,
+                "fail": None
+            }
+        }
+        self._content.update(content)
         self._provider = None
         self._load_provider = None
         self.validate()

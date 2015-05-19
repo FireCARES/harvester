@@ -11,7 +11,7 @@
     "load_destination": "parcels",
     "load_provider": "harvester.load.mongo.GEOJSONLoader",
     "extract_only": false,
-    "webhooks": {
+    "webhook": {
         "done": null,
         "fail": null
     }
