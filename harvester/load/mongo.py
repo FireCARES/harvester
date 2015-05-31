@@ -19,7 +19,7 @@ class GEOJSONLoader(object):
 
         def format_upstream(work, feature):
             return ('{0}/query?objectIds={1}&outFields=*&returnGeometry=true&outSR=4326&f=pjson'
-                    .format(work.layer, feature['properties'].get('OBJECTID')))
+                    .format(work.layer, feature['properties'].get(work.id_field)))
 
         with pymongo.MongoClient(settings.MONGO_CONNECTION) as client:
             db = client[settings.MONGO_DATABASE]
@@ -41,7 +41,8 @@ class GEOJSONLoader(object):
                        'feature': f}
                 _fix_keys(f['properties'])
                 # TODO: Make this query unique across BOTH OBJECTID AND meta.layer!
-                bulk.find({'feature.properties.OBJECTID': f['properties']['OBJECTID'], 'meta.layer': work.layer}).upsert().replace_one(ins)
+                bulk.find({'feature.properties.OBJECTID': f['properties'][work.id_field], 'meta.layer': work.layer}) \
+                    .upsert().replace_one(ins)
 
             bulk.execute()
             dest.create_index([('feature.geometry', pymongo.GEOSPHERE)])

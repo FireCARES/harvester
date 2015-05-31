@@ -35,6 +35,8 @@ class Runner(object):
             "city": None,
             "stateco_fips": None,
             "starting_chunk_size": None,
+            "id_field": "OBJECTID",
+            "srs": None,
             "min_id": None,
             "max_id": None,
             "load_destination": None,
@@ -49,6 +51,7 @@ class Runner(object):
         self._provider = None
         self._load_provider = None
         self.validate()
+        self.count = 0
 
     def merge(self, settings):
         def munge_from_json_key(s):
@@ -104,6 +107,14 @@ class Runner(object):
         return self._content.get('state_province')
 
     @property
+    def srs(self):
+        return self._content.get('srs')
+
+    @property
+    def id_field(self):
+        return self._content.get('id_field')
+
+    @property
     def city(self):
         return self._content.get('city')
 
@@ -151,7 +162,10 @@ class Runner(object):
     def do(self):
         try:
             self.started_at = datetime.now()
-            self.count = sum(self.do_extraction().apply().get())
+            try:
+                self.count = sum(self.do_extraction().apply().get())
+            except NotImplementedError:
+                pass
             if not self.extract_only:
                 self.do_transform()
                 self.load_to(self.load_provider)
