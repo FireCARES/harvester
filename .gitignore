@@ -64,3 +64,4 @@ cache_test
 .idea/
 
 /*.json
+deploy.sh

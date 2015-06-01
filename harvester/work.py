@@ -45,11 +45,15 @@ class Runner(object):
             "webhook": {
                 "done": None,
                 "fail": None
-            }
+            },
+            "pruners": [],
+            "transformers": []
         }
         self._content.update(content)
         self._provider = None
         self._load_provider = None
+        self._pruners = []
+        self._transformers = []
         self.validate()
         self.count = 0
 
@@ -158,6 +162,31 @@ class Runner(object):
     def stateco_fips(self):
         return self._content.get('stateco_fips')
 
+    def _parse_class(self, s):
+            return s.split(':')[0]
+
+    def _parse_args(self, s):
+        if len(s.split(':')) > 1:
+            return eval("dict({0})".format(s.split(':')[1]))
+        else:
+            return {}
+
+    @property
+    def pruners(self):
+        if not self._pruners:
+            self._pruners = []
+            for p in self._content.get('pruners'):
+                self._pruners.append((get_class(self._parse_class(p)), self._parse_args(p)))
+        return self._pruners
+
+    @property
+    def transformers(self):
+        if not self._transformers:
+            self._transformers = []
+            for t in self._content.get('transformers'):
+                self._transformers.append((get_class(self._parse_class(t)), self._parse_args(t)))
+        return self._transformers
+
     @task
     def do(self):
         try:
@@ -192,6 +221,26 @@ class Runner(object):
     def get_fail_webhook_text(self, trace):
         return ('HARVEST FAILED on {0} after {1}:\n{2}'
                 .format(self.layer, pretty_time_delta((datetime.now() - self.started_at).seconds), trace))
+
+    def transform_features(self, features):
+        ret = []
+        for f in features:
+            cur = f
+            for t in self.transformers:
+                cur = t[0](cur, **t[1])
+            ret.append(cur)
+        return ret
+
+    def prune_features(self, features):
+        ret = []
+        for f in features:
+            cur = f
+            for p in self.pruners:
+                if cur:
+                    cur = p[0](cur, **p[1])
+            if cur:
+                ret.append(cur)
+        return ret
 
 
 class Template(object):

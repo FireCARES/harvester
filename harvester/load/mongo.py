@@ -7,7 +7,7 @@ from datetime import datetime
 
 class GEOJSONLoader(object):
     @staticmethod
-    def load(filename, work):
+    def load(filename, work, bulk=False):
         def _fix_keys(d):
             # http://docs.mongodb.org/manual/reference/limits/#Restrictions%20on%20Field%20Names
             reg = re.compile('\.')
@@ -26,8 +26,9 @@ class GEOJSONLoader(object):
             features = json.load(open(filename))['features']
             dest = db[work.load_destination]
 
-            bulk = dest.initialize_unordered_bulk_op()
-            for f in features:
+            if bulk:
+                bulk = dest.initialize_unordered_bulk_op()
+            for f in work.transform_features(work.prune_features(features)):
                 ins = {'meta':
                        {'layer': work.layer,
                         'country': work.country,
@@ -40,12 +41,17 @@ class GEOJSONLoader(object):
                         },
                        'feature': f}
                 _fix_keys(f['properties'])
-                # TODO: Make this query unique across BOTH OBJECTID AND meta.layer!
-                bulk.find({'feature.properties.OBJECTID': f['properties'][work.id_field], 'meta.layer': work.layer}) \
-                    .upsert().replace_one(ins)
 
-            bulk.execute()
-            dest.create_index([('feature.geometry', pymongo.GEOSPHERE)])
+                if bulk:
+                    bulk.find({'feature.properties.OBJECTID': f['properties'][work.id_field], 'meta.layer': work.layer}) \
+                        .upsert().replace_one(ins)
+                else:
+                    dest.replace_one({'feature.properties.OBJECTID': f['properties'][work.id_field], 'meta.layer': work.layer},
+                                     ins, upsert=True)
+
+            if bulk:
+                bulk.execute()
+            dest.create_index([('feature.geometry', pymongo.GEOSPHERE)], bits=32)
             dest.create_index([('meta.country', pymongo.ASCENDING),
                                ('meta.state_province', pymongo.ASCENDING),
                                ('meta.city', pymongo.ASCENDING)])

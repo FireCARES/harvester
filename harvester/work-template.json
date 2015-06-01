@@ -6,14 +6,22 @@
     "city": "",
     "stateco_fips": "00000",
     "starting_chunk_size": 1000,
+    "id_field": "OBJECTID",
+    "srs": 4326,
     "min_id": null,
     "max_id": null,
-    "id_field": "OBJECTID",
     "load_destination": "parcels",
     "load_provider": "harvester.load.mongo.GEOJSONLoader",
     "extract_only": false,
+    
     "webhook": {
         "done": null,
         "fail": null
-    }
+    },
+    "pruners": [
+        "harvester.transform.prune.null_geometry"
+    ],
+    "transformers": [
+        "harvester.transform.alter.fix_duplicate_points"
+    ]
 }

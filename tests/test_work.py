@@ -7,6 +7,7 @@ class TestWork(unittest.TestCase):
     def setUp(self):
         self.good = work.Runner.from_file(get_mock_path('good_work.json'))
         self.good2 = work.Runner.from_file(get_mock_path('good_work2.json'))
+        self.good3 = work.Runner.from_file(get_mock_path('good_work3.json'))
 
     def test_json_load(self):
         with self.assertRaises(work.BadWorkFileFormat) as context:  # noqa
@@ -18,6 +19,12 @@ class TestWork(unittest.TestCase):
 
         with self.assertRaises(work.BadWorkFileFormat) as context:  # noqa
             work.Runner({})
+
+        self.assertEqual(self.good.transformers, [])
+        self.assertEqual(self.good.pruners, [])
+
+        self.assertGreater(len(self.good3.transformers), 0)
+        self.assertGreater(len(self.good3.pruners), 0)
 
     def test_settings_update(self):
         newfail = 'http://www.example.com/newfail'
