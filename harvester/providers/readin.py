@@ -73,8 +73,8 @@ class ReadInSource(CachableHTTPHarvester):
 
         return vsi_string.replace('//', '/')
 
-    def load_to(self, cls, work):
-        return cls.load(self.local_file, work)
+    def load_to(self, cls, work, **kwargs):
+        return cls.load(self.local_file, work, **kwargs)
 
     def in_srs_string(self):
         if self.sr:
@@ -84,7 +84,7 @@ class ReadInSource(CachableHTTPHarvester):
     def transform(self, work):
         logging.info('Transforming {0} to geojson'.format(self.url))
 
-        self.sr = getattr(work, 'srs', None)
+        self.sr = getattr(work, 'provider_parameters', {}).get('srs') or self.sr
         self.local_file = os.path.join(self.data_dir, os.path.splitext(os.path.split(self.url)[1])[0] + '.geojson')
 
         command = 'ogr2ogr -t_srs EPSG:4326 {3} -f "GeoJSON" {0} {1}{2}'.format(self.local_file, self.vsi_string(),

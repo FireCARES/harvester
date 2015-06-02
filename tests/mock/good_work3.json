@@ -1,6 +1,9 @@
 {
     "layer": "http://www.example.com",
     "provider": "harvester.providers.esri.RESTHarvester",
+    "provider_parameters": {
+        "srs": 4326
+    },
     "country": "US",
     "state_province": "MO",
     "city": "St. Louis",
@@ -9,6 +12,10 @@
     "download_only": false,
     "load_destination": "some_collection",
     "load_provider": "harvester.load.mongo.GEOJSONLoader",
+    "load_provider_parameters": {
+        "id_field": "OBJECTID",
+        "bulk": false
+    },
     "webhook": {
         "done": "http://www.example.com/done",
         "fail": "http://www.example.com/fail"

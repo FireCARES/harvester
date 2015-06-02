@@ -30,6 +30,7 @@ class Runner(object):
         self._content = {
             "layer": None,
             "provider": None,
+            "provider_parameters": {},
             "country": None,
             "state_province": None,
             "city": None,
@@ -41,6 +42,7 @@ class Runner(object):
             "max_id": None,
             "load_destination": None,
             "load_provider": None,
+            "load_provider_parameters": {},
             "extract_only": None,
             "webhook": {
                 "done": None,
@@ -51,7 +53,9 @@ class Runner(object):
         }
         self._content.update(content)
         self._provider = None
+        self._provider_parameters = None
         self._load_provider = None
+        self._load_provider_parameters = None
         self._pruners = []
         self._transformers = []
         self.validate()
@@ -75,6 +79,7 @@ class Runner(object):
                     logging.info('Updated work setting {0} with {1}'.format(qry, settings[s]))
 
     def validate(self):
+        # required for ALL providers
         for p in ['layer', 'provider', 'country', 'state_province', 'city', 'load_provider',
                   'load_destination', 'generated_at', 'generated_version']:
             if not getattr(self, p):
@@ -88,10 +93,16 @@ class Runner(object):
     def provider(self):
         if not self._provider:
             try:
-                self._provider = get_class(self._content.get('provider'))(self.layer)
+                self._provider = get_class(self._content.get('provider'))(self.layer, **self.provider_parameters)
             except ImportError:
                 raise InvalidWorkProvider('Missing work provider "{0}"'.format(self._content.get('provider')))
         return self._provider
+
+    @property
+    def provider_parameters(self):
+        if not self._provider_parameters:
+            self._provider_parameters = dict(self._content.get('provider_parameters'))
+        return self._provider_parameters
 
     @property
     def load_provider(self):
@@ -101,6 +112,12 @@ class Runner(object):
             except ImportError:
                 raise InvalidWorkProvider('Missing data loading provider "{0}"'.format(self._content.get('load_provider')))
         return self._load_provider
+
+    @property
+    def load_provider_parameters(self):
+        if not self._load_provider_parameters:
+            self._load_provider_parameters = dict(self._content.get('load_provider_parameters'))
+        return self._load_provider_parameters
 
     @property
     def country(self):
@@ -212,7 +229,7 @@ class Runner(object):
         self.provider.transform(self)
 
     def load_to(self, dest):
-        self.provider.load_to(dest, self)
+        self.provider.load_to(dest, self, **self.load_provider_parameters)
 
     def get_done_webhook_text(self):
         return ('Finished harvest on {0}, took {1}, collected {2} features'

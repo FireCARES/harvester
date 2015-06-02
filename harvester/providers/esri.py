@@ -133,7 +133,7 @@ class RESTHarvester(CachableHTTPHarvester):
             logging.info('Transforming {0} to geojson'.format(f))
             ESRIJSON.to_geojson(f)
 
-    def load_to(self, cls, work):
+    def load_to(self, cls, work, **kwargs):
         for f in self.get_cached_geojson_files():
             logging.info('Loading features from {0}'.format(f))
-            cls.load(f, work)
+            cls.load(f, work, **kwargs)

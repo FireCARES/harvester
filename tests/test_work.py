@@ -38,3 +38,7 @@ class TestWork(unittest.TestCase):
         newdone = 'http://www.example.com/newdone'
         self.good2.merge({'webhook': newdone})
         self.assertEquals(self.good2.done_webhook, newdone)
+
+    def test_provider_parameters(self):
+        self.assertEqual(self.good3.provider_parameters.get('srs'), 4326)
+        self.assertEqual(self.good3.load_provider_parameters.get('id_field'), 'OBJECTID')

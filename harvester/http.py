@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 class CachableHTTPHarvester(object):
     """Faux abstract class, this class doesn't have the complete wiring necessary, must implement `url_to_file`"""
-    def __init__(self, cache_enabled=True, data_dir='data'):
+    def __init__(self, cache_enabled=True, data_dir='data', *args, **kwargs):
         self.cache_enabled = cache_enabled
         self.interactive = True
         self.data_dir = data_dir

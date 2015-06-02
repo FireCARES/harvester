@@ -3,11 +3,15 @@ import pymongo
 import json
 import re
 from datetime import datetime
+import logging
 
 
 class GEOJSONLoader(object):
     @staticmethod
-    def load(filename, work, bulk=False):
+    def load(filename, work, bulk=True, id_field='OBJECTID'):
+        if not bulk:
+            logging.info("Loading individual features vs bulk loading")
+
         def _fix_keys(d):
             # http://docs.mongodb.org/manual/reference/limits/#Restrictions%20on%20Field%20Names
             reg = re.compile('\.')
@@ -19,7 +23,7 @@ class GEOJSONLoader(object):
 
         def format_upstream(work, feature):
             return ('{0}/query?objectIds={1}&outFields=*&returnGeometry=true&outSR=4326&f=pjson'
-                    .format(work.layer, feature['properties'].get(work.id_field)))
+                    .format(work.layer, feature['properties'].get(id_field)))
 
         with pymongo.MongoClient(settings.MONGO_CONNECTION) as client:
             db = client[settings.MONGO_DATABASE]
@@ -43,10 +47,10 @@ class GEOJSONLoader(object):
                 _fix_keys(f['properties'])
 
                 if bulk:
-                    bulk.find({'feature.properties.OBJECTID': f['properties'][work.id_field], 'meta.layer': work.layer}) \
+                    bulk.find({'feature.properties.OBJECTID': f['properties'][id_field], 'meta.layer': work.layer}) \
                         .upsert().replace_one(ins)
                 else:
-                    dest.replace_one({'feature.properties.OBJECTID': f['properties'][work.id_field], 'meta.layer': work.layer},
+                    dest.replace_one({'feature.properties.OBJECTID': f['properties'][id_field], 'meta.layer': work.layer},
                                      ins, upsert=True)
 
             if bulk:
